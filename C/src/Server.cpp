@@ -1,11 +1,13 @@
-// Server side C/C++ program to demonstrate Socket programming
-#include <unistd.h>
 #include <cstdio>
 #include <sys/socket.h>
 #include <cstdlib>
 #include <netinet/in.h>
 #include <cstring>
 #include <iostream>
+#include <thread>         // std::this_thread::sleep_for
+#include <unistd.h>
+#include<chrono>
+
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -37,13 +39,28 @@ int main(int argc, char const *argv[])
     std::cout << "Listening at port " << SENDER_PORT << "..." << std::endl;
     std::cout << "Sending to port " << SERVER_PORT << "..." << std::endl;
 
-
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    ssize_t s = 0;
+    int i = 0;
+    int c = 0;
     while (true){
         memset(&buffer, 0, BUF_SIZE);
         int sdr_addr_len = sizeof(sender_addr);
-        recvfrom(sockfd, (char *) buffer, BUF_SIZE, MSG_WAITALL, (struct sockaddr *) &sender_addr,
+        ssize_t size = recvfrom(sockfd, (char *) buffer, BUF_SIZE, 0, (struct sockaddr *) &sender_addr,
                 (socklen_t *) &sdr_addr_len);
-        sendto(sockfd, &buffer, BUF_SIZE, MSG_DONTROUTE, (struct sockaddr *) &receiver_addr, rcv_addr_len);
+        if (c != 500){
+            sendto(sockfd, &buffer, BUF_SIZE, MSG_DONTROUTE, (struct sockaddr *) &receiver_addr, rcv_addr_len);
+        }
+        else{
+            c = 0;
+        }
+        if(std::chrono::steady_clock::now() - start > std::chrono::seconds(i)){
+            i++;
+            std::cout << s << std::endl;
+            s = 0;
+        }
+        s += size;
+        c++;
     }
 }
 #pragma clang diagnostic pop

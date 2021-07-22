@@ -33,7 +33,7 @@ class UDPServer {
   // size = rx_buffer_size
   explicit UDPServer(uint16_t port, size_t rx_buffer_size = 0) : port_(port) {
     if (kDebugPrintUdpServerInit) {
-      std::printf("Creating UDP server listening at port %d\n", port);
+      printf("Creating UDP server listening at port %d\n", port);
     }
     sock_fd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock_fd_ == -1) {

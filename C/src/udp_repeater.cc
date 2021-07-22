@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 
   gflags::SetUsageMessage("rx_port_id, tx_port_id");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  //std::string cur_directory = TOSTRING(PROJECT_DIRECTORY);
+  std::string cur_directory = __STRING(PROJECT_DIRECTORY);
   
   unsigned tx_port = FLAGS_tx_port_id;
   unsigned rx_port = FLAGS_rx_port_id;
