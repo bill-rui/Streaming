@@ -4,7 +4,7 @@ msgFromClient = "Client1"
 
 bytesToSend = str.encode(msgFromClient)
 
-serverAddressPort = ("127.0.0.1", 1234)
+serverAddressPort = ("127.0.0.1", 1342)
 
 bufferSize = 1024
 
@@ -15,6 +15,8 @@ UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 # Send to server using created UDP socket
 
 UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+
+print("message sent")
 
 msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 
