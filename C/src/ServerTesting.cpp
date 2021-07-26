@@ -9,6 +9,4 @@ int main(int argc, char const *argv[]){
         server.Recv((unsigned char *) &buffer, BUFF_SIZE);
         std::cout << buffer << std::endl;
     }
-
-
 }

@@ -23,6 +23,8 @@
 
 #include <cstring> /* std::strerror, std::memset, std::memcpy */
 #include <stdexcept>
+#include <map>
+#include <mutex>
 
 /// Basic UDP server class based on OS sockets that supports receiving messages
 class UDPServer {

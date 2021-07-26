@@ -3,7 +3,7 @@ import time
 
 localIP = "127.0.0.1"
 
-localPort = 1234
+localPort = 1342
 
 bufferSize = 65535
 
@@ -39,5 +39,7 @@ while True:
     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
 
     message: bytes = bytesAddressPair[0]
+
+    print(message)
 
     UDPServerSocket.sendto(message, client_address)
