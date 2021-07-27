@@ -1,6 +1,7 @@
 project(UDP_Server)
 add_executable(server src/ServerTesting.cpp)
 add_executable(client src/ClinetTesting.cpp)
+
 if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     message(STATUS "Using GNU compiler, compiler ID ${CMAKE_C_COMPILER_ID}")
     set(CMAKE_C_FLAGS "-std=gnu11 -Wall -g -march=native -m64")

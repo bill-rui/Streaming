@@ -1,9 +1,9 @@
 import socket
 import time
 
-localIP = "168.6.245.88"
+localIP = "10.238.200.106"
 localPort = 1234
-client_address = ("10.238.200.106", 1233)
+client_address = ("168.6.245.88", 1350)
 bufferSize = 3000
 forwarding = False
 
@@ -34,7 +34,7 @@ clientIP = "Client IP Address:{}".format(client_address)
 
 print(clientMsg)
 print(clientIP)
-
+UDPServerSocket.sendto(bytesToSend, client_address)
 
 while True:
     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
