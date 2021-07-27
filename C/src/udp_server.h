@@ -63,12 +63,7 @@ class UDPServer {
 
     struct sockaddr_in serveraddr;
     serveraddr.sin_family = AF_INET;
-    if (address == nullptr){
-        serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-    else{
-        serveraddr.sin_addr.s_addr = inet_addr(address);  // bind to specific address
-    }
+    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serveraddr.sin_port = htons(static_cast<unsigned short>(port));
     std::memset(serveraddr.sin_zero, 0, sizeof(serveraddr.sin_zero));
 
