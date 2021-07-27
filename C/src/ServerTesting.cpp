@@ -3,7 +3,7 @@
 #include <iostream>
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
-#define BUFF_SIZE 2000
+#define BUFF_SIZE 4000
 #define SERVER_ADDR "168.6.245.88"
 #define SERVER_PORT 1350
 #define FORWARDING_ADDR "10.238.200.106"
