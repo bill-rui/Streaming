@@ -1,11 +1,11 @@
 import socket
 import time
 
-localIP = "127.0.0.1"
-
-localPort = 1342
-
-bufferSize = 65535
+localIP = "168.6.245.88"
+client_address = ("10.238.200.106", 1233)
+localPort = 1234
+bufferSize = 3000
+forwarding = False
 
 msgFromServer = "Hello UDP Client"
 
@@ -26,7 +26,8 @@ bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
 
 message: bytes = bytesAddressPair[0]
 
-client_address = bytesAddressPair[1]
+if not forwarding:
+    client_address = bytesAddressPair[1]
 
 clientMsg = "Message from Client:{}".format(message)
 clientIP = "Client IP Address:{}".format(client_address)
@@ -34,12 +35,9 @@ clientIP = "Client IP Address:{}".format(client_address)
 print(clientMsg)
 print(clientIP)
 
-client_address = ("127.0.0.1", 1233)
+
 while True:
     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-
     message: bytes = bytesAddressPair[0]
-
     print(message)
-
     UDPServerSocket.sendto(message, client_address)
