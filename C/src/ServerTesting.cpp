@@ -5,16 +5,15 @@
 
 int main(int argc, char const *argv[]){
     unsigned char buffer[BUFF_SIZE];
-    UDPServer server(1234, 2000);
+    UDPServer server(1350, 2000);
     UDPClient sender;
     server.MakeBlocking();
-    std::string addr = "127.0.0.1";
+    std::string clientAddr = "10.238.200.106";
     unsigned short port = 0;
 
     while (true){
-        server.RecvFrom((unsigned char *) &buffer, BUFF_SIZE, addr, port);
+        server.Recv((unsigned char *) &buffer, BUFF_SIZE);
         sender.Send("10.238.200.106", 1233, (unsigned char *) &buffer, sizeof(buffer));
-        std::cout << port << std::endl;
         std::cout << buffer << std::endl;
     }
 }

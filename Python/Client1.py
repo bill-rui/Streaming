@@ -4,7 +4,7 @@ msgFromClient = "Client1"
 
 bytesToSend = str.encode(msgFromClient)
 
-serverAddressPort = ("127.0.0.1", 1234)
+serverAddressPort = ("168.6.245.88", 1234)
 
 bufferSize = 1024
 
@@ -24,8 +24,8 @@ msg = "Message from Server {}".format(msgFromServer[0])
 
 print(msg)
 
-msg_to_client2 = "to client 2: hello client2"
+#msg_to_client2 = "to client 2: hello client2"
 
-bytesToSend = str.encode(msg_to_client2)
+#bytesToSend = str.encode(msg_to_client2)
 
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+#UDPClientSocket.sendto(bytesToSend, serverAddressPort)

@@ -2,8 +2,8 @@ import socket
 import time
 
 localIP = "168.6.245.88"
-client_address = ("10.238.200.106", 1233)
 localPort = 1234
+client_address = ("10.238.200.106", 1233)
 bufferSize = 3000
 forwarding = False
 
