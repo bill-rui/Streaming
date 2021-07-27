@@ -134,6 +134,7 @@ class UDPServer {
     if (remote_itr == addrinfo_map_.end()) {
       char port_str[16u];
       snprintf(port_str, sizeof(port_str), "%u", src_port);
+      std::printf("port: %s", port_str);
 
       struct addrinfo hints;
       std::memset(&hints, 0, sizeof(hints));

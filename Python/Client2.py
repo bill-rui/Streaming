@@ -4,7 +4,7 @@ msgFromClient = "Client2"
 
 bytesToSend = str.encode(msgFromClient)
 
-serverAddressPort = ("127.0.0.1", 1342)
+serverAddressPort = ("127.0.0.1", 1233)
 
 bufferSize = 1024
 

@@ -5,5 +5,5 @@
 int main(int argc, char const *argv[]){
     UDPClient client;
     unsigned char msg = 'c';
-    client.Send("127.0.0.1", 8080, &msg, sizeof(msg));
+    client.Send("127.0.0.1", 1234, &msg, sizeof(msg));
 }
