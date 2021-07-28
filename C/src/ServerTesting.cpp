@@ -17,7 +17,8 @@ int main(int argc, char const *argv[]){
     UDPClient sender;
     std::cout << "Forwarding to address: " << FORWARDING_ADDR << ":" << FORWARDING_PORT << std::endl;
     server.MakeBlocking();
-    long bufferSize = 0;
+    unsigned long bufferSize = 0;
+    unsigned long sendPacketSize;
 
     while(true){
         ssize_t packetSize = server.Recv((unsigned char *) &rxBuffer, BUFF_SIZE);
@@ -25,22 +26,32 @@ int main(int argc, char const *argv[]){
         bufferSize += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
 
-        auto packetCount = (int) bufferSize / SEND_PACKET_SIZE;
-        long leftoverBytes = bufferSize % SEND_PACKET_SIZE;
+        unsigned int packetCount; unsigned long leftoverBytes;
+
+        if(SEND_PACKET_SIZE > packetSize){
+            sendPacketSize = packetSize;
+            packetCount = 1;
+            leftoverBytes = 0;
+        }
+        else{
+            sendPacketSize = SEND_PACKET_SIZE;
+            packetCount = (int) bufferSize / sendPacketSize;
+            leftoverBytes = bufferSize % sendPacketSize;
+        }
 
         for(int i = 0; i < packetCount; i++){  // send packets
             try{
-                sender.Send(FORWARDING_ADDR, FORWARDING_PORT, bufferPtr, SEND_PACKET_SIZE);
+                sender.Send(FORWARDING_ADDR, FORWARDING_PORT, bufferPtr, sendPacketSize);
                 std::cout << "packet sent" << std::endl;
             }
             catch (std::runtime_error& e) {
                 std::cout << "Sending error: " << e.what() << std::endl;
             }
-            bufferPtr += SEND_PACKET_SIZE;
+            bufferPtr += sendPacketSize;
         }
 
         memcpy(&rxBuffer, bufferPtr, leftoverBytes);
-        bufferSize -= packetCount * SEND_PACKET_SIZE;
+        bufferSize -= packetCount * sendPacketSize;
     }
 }
 #pragma clang diagnostic pop
