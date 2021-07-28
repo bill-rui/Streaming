@@ -9,7 +9,7 @@
 #define SERVER_PORT 1350
 #define FORWARDING_ADDR "10.238.200.106"
 #define FORWARDING_PORT 1234
-#define SEND_PACKET_SIZE 256
+#define SEND_PACKET_SIZE 512
 
 int main(int argc, char const *argv[]){
     unsigned char rxBuffer[BUFF_SIZE];
@@ -22,7 +22,6 @@ int main(int argc, char const *argv[]){
 
     while(true){
         ssize_t packetSize = server.Recv((unsigned char *) &rxBuffer, BUFF_SIZE);
-        std::cout << "packet received: " << packetSize << std::endl;
         long bytesSent = 0;
         auto *bufferPtr = (unsigned char *) &txBuffer;
 
