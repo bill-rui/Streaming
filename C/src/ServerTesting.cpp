@@ -28,8 +28,8 @@ int main(int argc, char const *argv[]){
 
         unsigned int packetCount; unsigned long leftoverBytes;
 
-        if(SEND_PACKET_SIZE > packetSize){
-            sendPacketSize = packetSize;
+        if(SEND_PACKET_SIZE > bufferSize){
+            sendPacketSize = bufferSize;
             packetCount = 1;
             leftoverBytes = 0;
         }
