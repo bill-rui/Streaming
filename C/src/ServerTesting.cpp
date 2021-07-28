@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]){
             leftoverBytes = bufferSize % sendPacketSize;
         }
 
-        for(int i = 0; i < packetCount; i++){  // send packets
+        for(unsigned int i = 0; i < packetCount; i++){  // send packets
             try{
                 sender.Send(FORWARDING_ADDR, FORWARDING_PORT, bufferPtr, sendPacketSize);
                 std::cout << "packet sent: " << sendPacketSize << std::endl;
