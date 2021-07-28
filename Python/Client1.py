@@ -6,7 +6,7 @@ bytesToSend = str.encode(msgFromClient)
 
 serverAddressPort = ("168.6.245.88", 1350)
 
-bufferSize = 1024
+bufferSize = 2000
 
 # Create a UDP socket at client side
 

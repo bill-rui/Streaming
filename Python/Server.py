@@ -1,7 +1,7 @@
 import socket
 import time
 
-localIP = "10.238.200.106"
+localIP = "10.238.200.105"
 localPort = 1234
 client_address = ("168.6.245.88", 1350)
 bufferSize = 3000

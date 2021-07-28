@@ -7,45 +7,40 @@
 #pragma ide diagnostic ignored "EndlessLoop"
 #define BUFF_SIZE 4000
 #define SERVER_PORT 1350
-#define FORWARDING_ADDR "10.238.200.106"
+#define FORWARDING_ADDR "10.238.200.105"
 #define FORWARDING_PORT 1234
 #define SEND_PACKET_SIZE 512
 
 int main(int argc, char const *argv[]){
-    unsigned char rxBuffer[BUFF_SIZE];
-    unsigned char txBuffer[BUFF_SIZE + SEND_PACKET_SIZE];
+    unsigned char rxBuffer[BUFF_SIZE + SEND_PACKET_SIZE];
     UDPServer server(SERVER_PORT, BUFF_SIZE);
     UDPClient sender;
+    std::cout << "Forwarding to address: " << FORWARDING_ADDR << ":" << FORWARDING_PORT << std::endl;
     server.MakeBlocking();
-    long leftoverBytes = 0;
-    long txBufferSize = 0;
+    long bufferSize = 0;
 
     while(true){
         ssize_t packetSize = server.Recv((unsigned char *) &rxBuffer, BUFF_SIZE);
-        long bytesSent = 0;
-        auto *bufferPtr = (unsigned char *) &txBuffer;
+        std::cout << "packet received" << std::endl;
+        bufferSize += packetSize;
+        auto *bufferPtr = (unsigned char *) &rxBuffer;
 
-        for(int i = 0; i < packetSize; i++) {  // copy rx buffer to tx buffer
-            txBuffer[i + leftoverBytes] = rxBuffer[i];
-            txBufferSize++;
-        }
+        auto packetCount = (int) bufferSize / SEND_PACKET_SIZE;
+        long leftoverBytes = bufferSize % SEND_PACKET_SIZE;
 
-        while(bytesSent + SEND_PACKET_SIZE < txBufferSize){  // send packets
+        for(int i = 0; i < packetCount; i++){  // send packets
             try{
                 sender.Send(FORWARDING_ADDR, FORWARDING_PORT, bufferPtr, SEND_PACKET_SIZE);
+                std::cout << "packet sent" << std::endl;
             }
             catch (std::runtime_error& e) {
                 std::cout << "Sending error: " << e.what() << std::endl;
             }
             bufferPtr += SEND_PACKET_SIZE;
-            bytesSent = bufferPtr - (unsigned char *)&txBuffer;
         }
 
-        for(int i = 0; i < txBufferSize - bytesSent; i++){  // move the rest of buffer to the start of buffer
-            txBuffer[i] = *bufferPtr;
-            bufferPtr++;
-        }
-        txBufferSize -= bytesSent;
+        memcpy(&rxBuffer, bufferPtr, leftoverBytes);
+        bufferSize -= packetCount * SEND_PACKET_SIZE;
     }
 }
 #pragma clang diagnostic pop
