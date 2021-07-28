@@ -4,12 +4,11 @@
 #include "udp_client.h"
 #include <iostream>
 #pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
 #define BUFF_SIZE 4000
 #define SERVER_PORT 1350
 #define FORWARDING_ADDR "10.238.200.107"
 #define FORWARDING_PORT 1234
-#define SEND_PACKET_SIZE 2632
+#define SEND_PACKET_SIZE 3000
 
 int main(int argc, char const *argv[]){
     unsigned char rxBuffer[BUFF_SIZE + SEND_PACKET_SIZE];
@@ -18,27 +17,20 @@ int main(int argc, char const *argv[]){
     std::cout << "Forwarding to address: " << FORWARDING_ADDR << ":" << FORWARDING_PORT << std::endl;
     server.MakeBlocking();
     unsigned long bufferSize = 0;
-    unsigned long sendPacketSize;
-    auto *recvStart = (unsigned char *) &rxBuffer;
+    unsigned long buffOffset = 0;
+    unsigned long sendPacketSize = SEND_PACKET_SIZE;
 
     while(true){
-        ssize_t packetSize = server.Recv(recvStart, BUFF_SIZE);
+        unsigned int packetCount;
+        ssize_t packetSize = server.Recv(&rxBuffer[buffOffset], BUFF_SIZE);
+        if(packetSize < 0){
+            throw std::runtime_error("Receive failed");
+        }
         std::cout << "packet received: " << packetSize << std::endl;
         bufferSize += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
-
-        unsigned int packetCount; unsigned long leftoverBytes;
-
-        if(SEND_PACKET_SIZE > bufferSize){
-            sendPacketSize = bufferSize;
-            packetCount = 0;
-            leftoverBytes = 0;
-        }
-        else{
-            sendPacketSize = SEND_PACKET_SIZE;
-            packetCount = (int) bufferSize / sendPacketSize;
-            leftoverBytes = bufferSize % sendPacketSize;
-        }
+        packetCount = (int) bufferSize / sendPacketSize;
+        buffOffset = bufferSize % sendPacketSize;
 
         for(unsigned int i = 0; i < packetCount; i++){  // send packets
             try{
@@ -51,9 +43,10 @@ int main(int argc, char const *argv[]){
             bufferPtr += sendPacketSize;
         }
 
-        memcpy(&rxBuffer, bufferPtr, leftoverBytes);  //move buffer to front
+        if (packetCount != 0){
+            memcpy(&rxBuffer, bufferPtr, buffOffset);  //move buffer to front
+        }
         bufferSize -= packetCount * sendPacketSize;
-        recvStart = (unsigned char *) &rxBuffer + leftoverBytes;  // move the receiving function write position
     }
 }
 #pragma clang diagnostic pop
