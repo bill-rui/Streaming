@@ -22,7 +22,7 @@ int main(int argc, char const *argv[]){
 
     while(true){
         ssize_t packetSize = server.Recv((unsigned char *) &rxBuffer, BUFF_SIZE);
-        std::cout << "packet received" << std::endl;
+        std::cout << "packet received: " << packetSize << std::endl;
         bufferSize += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
 
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[]){
         for(int i = 0; i < packetCount; i++){  // send packets
             try{
                 sender.Send(FORWARDING_ADDR, FORWARDING_PORT, bufferPtr, sendPacketSize);
-                std::cout << "packet sent" << std::endl;
+                std::cout << "packet sent: " << sendPacketSize << std::endl;
             }
             catch (std::runtime_error& e) {
                 std::cout << "Sending error: " << e.what() << std::endl;
