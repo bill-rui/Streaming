@@ -20,6 +20,7 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
     unsigned long total_rx_data = 0;
     unsigned long buffOffset = 0;
     unsigned long sendPacketSize = sendPktSize;
+    int sendPktCount = 0;
 
     while(true) {
         unsigned int packetCount;
@@ -36,7 +37,8 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
         for (unsigned int i = 0; i < packetCount; i++) {  // send packets
             try {
                 ssize_t s = sender.Send(addr, forwardingPort, bufferPtr, sendPacketSize);
-                std::cout << "packet sent: " << s << std::endl;
+                sendPktCount++;
+                std::cout << "packet sent: " << s << ", " << sendPktCount << std::endl;
             }
             catch (std::runtime_error &e) {
                 std::cout << "Sending error: " << e.what() << std::endl;
