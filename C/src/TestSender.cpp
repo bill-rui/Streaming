@@ -9,12 +9,13 @@
 #define SEND_PACKET_SIZE 256
 
 int main (int argc, char *argv[]) {
+    int data_count = 25600;
     int pktSize = 512;
-    unsigned char data[2560];
+    unsigned char data[data_count];
     for(int i = 0; i < sizeof(data); i++){
         data[i] = 'a' + i % 26;
     }
-    for(long i = (long) &data; i < (long) &data + 2560; i += pktSize){
+    for(long i = (long) &data; i < (long) &data + data_count; i += pktSize){
         sendData("127.0.0.1", 1350, (unsigned char*) i, pktSize);
         std::cout << "packet sent: " << pktSize << std::endl;
     }

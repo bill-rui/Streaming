@@ -10,14 +10,14 @@ int main (int argc, char *argv[]) {
     int buffSize = 25600;
     int pktSize = 200;
     UDPServer receiver(1235, 4000);
-    unsigned char data[2560];
+    unsigned char data[buffSize];
     for(int i = 0; i < sizeof(data); i++){
         data[i] = 'a' + i % 26;
     }
     unsigned char buffer[buffSize];
     receiver.MakeBlocking();
     auto ptr = (unsigned char*) &buffer;
-    while(ptr < (unsigned char *)&buffer + buffSize - pktSize){
+    while(ptr - (unsigned char *) &buffer < buffSize - pktSize){
         int pktSize =  receiver.Recv(ptr, buffSize);
         std::cout << "packet received: " << pktSize << std::endl;
         ptr += pktSize;
