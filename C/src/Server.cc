@@ -5,32 +5,26 @@
 #include "udp_client.h"
 #include <iostream>
 #pragma clang diagnostic push
-#define BUFF_SIZE 4000
-#define SERVER_PORT 1350
-#define FORWARDING_ADDR "127.0.0.1"
-#define FORWARDING_PORT 1235
-#define SEND_PACKET_SIZE 256
+
 
 void forward(int buffSize, int serverPort, std::string addr, int forwardingPort, int sendPktSize){
     unsigned char rxBuffer[buffSize + sendPktSize];
     UDPServer server(serverPort, buffSize);
     UDPClient sender;
     std::cout << "Forwarding to address: " << addr << ":" << forwardingPort << std::endl;
+    std::cout << "Packet size: " << sendPktSize << std::endl;
     server.MakeBlocking();
     unsigned long total_rx_data = 0;
     unsigned long buffOffset = 0;
     unsigned long sendPacketSize = sendPktSize;
-    int sendPktCount = 0;
-    int rcvPktCount = 0;
 
     while(true) {
         unsigned int packetCount;
         ssize_t packetSize = server.Recv(&rxBuffer[buffOffset], buffSize);
-        rcvPktCount++;
         if (packetSize < 0) {
             throw std::runtime_error("Receive failed");
         }
-        std::cout << "packet received: " << packetSize << ", " << rcvPktCount << std::endl;
+        //std::cout << "packet received: " << packetSize << std::endl;
         total_rx_data += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
         packetCount = (int) total_rx_data / sendPacketSize;
@@ -39,11 +33,10 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
         for (unsigned int i = 0; i < packetCount; i++) {  // send packets
             try {
                 ssize_t s = sender.Send(addr, forwardingPort, bufferPtr, sendPacketSize);
-                sendPktCount++;
-                std::cout << "packet sent: " << s << ", " << sendPktCount << std::endl;
+                //std::cout << "packet sent: " << s << std::endl;
             }
             catch (std::runtime_error &e) {
-                std::cout << "Sending error: " << e.what() << std::endl;
+                //std::cout << "Sending error: " << e.what() << std::endl;
             }
             bufferPtr += sendPacketSize;
         }
