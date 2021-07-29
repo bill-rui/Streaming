@@ -3,6 +3,7 @@
 
 #include "udp_server.h"
 #include "udp_client.h"
+#include "signal_handler.h"
 #include <iostream>
 #pragma clang diagnostic push
 
@@ -13,16 +14,18 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
     UDPClient sender;
     std::cout << "Forwarding to address: " << addr << ":" << forwardingPort << std::endl;
     std::cout << "Packet size: " << sendPktSize << std::endl;
-    server.MakeBlocking();
+    server.MakeBlocking(1);
     unsigned long total_rx_data = 0;
     unsigned long buffOffset = 0;
+    SignalHandler signal_handler;
+    signal_handler.SetupSignalHandlers();
 
-    while(true) {
+    while(!signal_handler.GotExitSignal()) {
         ssize_t packetSize = server.Recv(&rxBuffer[buffOffset], buffSize);
         if (packetSize < 0) {
             throw std::runtime_error("Receive failed");
         }
-        //std::cout << "packet received: " << packetSize << std::endl;
+        std::cout << "packet received: " << packetSize << std::endl;
         total_rx_data += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
         unsigned int packetCount = (int) total_rx_data / sendPktSize;
@@ -44,6 +47,7 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
         }
         total_rx_data -= packetCount * sendPktSize;
     }
+    std::cout << "No packet received" << std::endl;
 }
 
 void sendData(std::string addr, int port, const unsigned char* buffer, ssize_t len){

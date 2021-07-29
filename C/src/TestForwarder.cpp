@@ -1,4 +1,4 @@
-#include "Server.cc"
+#include "Server.h"
 #define BUFF_SIZE 4000
 #define SERVER_PORT 1350
 #define FORWARDING_ADDR "10.238.200.107"
