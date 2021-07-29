@@ -10,7 +10,6 @@ int main (int argc, char *argv[]) {
     for(int i = 0; i < sizeof(data); i++){
         data[i] = 'a' + i % 26;
     }
-    std::cout << data << std::endl;
     unsigned char buffer[2560];
     receiveData(1235, (unsigned char*)&buffer, sizeof(buffer));
     int errCount = 0;
@@ -20,5 +19,6 @@ int main (int argc, char *argv[]) {
         }
     }
     std::cout << "error count: " << errCount << std::endl;
+    std::cout << buffer << std::endl;
 
 }
