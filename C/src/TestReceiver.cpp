@@ -17,10 +17,12 @@ int main (int argc, char *argv[]) {
     unsigned char buffer[buffSize];
     receiver.MakeBlocking();
     auto ptr = (unsigned char*) &buffer;
+    int i = 0;
     while(ptr - (unsigned char *) &buffer < buffSize - pktSize){
         int pktSize =  receiver.Recv(ptr, buffSize);
-        std::cout << "packet received: " << pktSize << std::endl;
+        std::cout << "packet received: " << pktSize << ", " << i << std::endl;
         ptr += pktSize;
+        i++;
     }
 
     int errCount = 0;
