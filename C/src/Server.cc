@@ -4,6 +4,7 @@
 #include "udp_server.h"
 #include "udp_client.h"
 #include "signal_handler.h"
+#include "Server.h"
 #include <iostream>
 #pragma clang diagnostic push
 
@@ -27,8 +28,8 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
         }
         std::cout << "packet received: " << packetSize << std::endl;
         total_rx_data += packetSize;
-        auto *bufferPtr = (unsigned char *) &rxBuffer;
-        unsigned int packetCount = (int) total_rx_data / sendPktSize;
+        auto *bufferPtr = reinterpret_cast<const unsigned char *>(&rxBuffer);
+        unsigned int packetCount = static_cast<int>(total_rx_data / sendPktSize);
         buffOffset = total_rx_data % sendPktSize;
 
         for (unsigned int i = 0; i < packetCount; i++) {  // send packets
@@ -46,8 +47,10 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
             memcpy(&rxBuffer, bufferPtr, buffOffset);  //move buffer to front
         }
         total_rx_data -= packetCount * sendPktSize;
+        std::cout << signal_handler.GotExitSignal() << std::endl;
     }
     std::cout << "No packet received" << std::endl;
+
 }
 
 void sendData(std::string addr, int port, const unsigned char* buffer, ssize_t len){
