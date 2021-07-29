@@ -1,6 +1,7 @@
 project(UDP_Server)
-add_executable(server src/ServerTesting.cpp)
-add_executable(client src/ClinetTesting.cpp)
+add_executable(send src/TestSender.cpp)
+add_executable(forward src/TestForwarder.cpp)
+add_executable(receive src/TestReceiver.cpp)
 
 if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     message(STATUS "Using GNU compiler, compiler ID ${CMAKE_C_COMPILER_ID}")

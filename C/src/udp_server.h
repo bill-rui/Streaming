@@ -33,7 +33,7 @@ class UDPServer {
 
   // Initialize a UDP server listening on this UDP port with socket buffer
   // size = rx_buffer_size
-  explicit UDPServer(uint16_t port, size_t rx_buffer_size = 0, const char *address = nullptr) : port_(port) {
+  explicit UDPServer(uint16_t port, size_t rx_buffer_size = 0) : port_(port) {
     if (kDebugPrintUdpServerInit) {
       printf("Creating UDP server listening at port %d\n", port);
     }
