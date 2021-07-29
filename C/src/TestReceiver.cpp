@@ -12,5 +12,11 @@ int main (int argc, char *argv[]) {
     }
     unsigned char buffer[2560];
     receiveData(1235, (unsigned char*)&buffer, sizeof(buffer));
-    std::cout << buffer;
+    int errCount = 0;
+    for(int i = 0; i < 2560; i++){
+        if(data[i] != buffer[i]){
+            errCount++;
+        }
+    }
+    std::cout << "error count: " << errCount << std::endl;
 }
