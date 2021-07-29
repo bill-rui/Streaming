@@ -9,7 +9,7 @@
 #define SEND_PACKET_SIZE 256
 
 int main (int argc, char *argv[]) {
-    int data_count = 25600;
+    int data_count = 2560;
     int pktSize = 512;
     int sendCount = 0;
     unsigned char data[data_count];
