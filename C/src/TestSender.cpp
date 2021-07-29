@@ -10,7 +10,7 @@
 
 int main (int argc, char *argv[]) {
     int data_count = 10000;
-    int pktSize = 256;
+    int pktSize = 512;
     int sendCount = 0;
     unsigned char data[data_count];
     for(int i = 0; i < sizeof(data); i++){
