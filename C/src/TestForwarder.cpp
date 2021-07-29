@@ -6,5 +6,5 @@
 #define SEND_PACKET_SIZE 256
 
 int main (int argc, char *argv[]) {
-    forward(256, 1350, "127.0.0.1", 1235, 200);
+    forward(2000, 1350, "127.0.0.1", 1235, 200);
 }
