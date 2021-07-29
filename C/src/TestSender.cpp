@@ -11,7 +11,7 @@
 int main (int argc, char *argv[]) {
     unsigned char data[2560];
     for(int i = 0; i < sizeof(data); i++){
-        data[i] = 'a' + i;
+        data[i] = 'a' + i % 26;
     }
     for(long i = (long) &data; i < (long) &data + 2560; i += 256){
         sendData("127.0.0.1", 1350, (unsigned char*) i, 256);
