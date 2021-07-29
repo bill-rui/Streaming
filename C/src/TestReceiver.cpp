@@ -12,4 +12,5 @@ int main (int argc, char *argv[]) {
     }
     unsigned char buffer[2560];
     receiveData(1235, (unsigned char*)&buffer, sizeof(buffer));
+    std::cout << buffer;
 }
