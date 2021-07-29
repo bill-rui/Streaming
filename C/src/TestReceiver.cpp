@@ -7,7 +7,8 @@
 #define SEND_PACKET_SIZE 256
 
 int main (int argc, char *argv[]) {
-    int buffSize = 2560;
+    int buffSize = 25600;
+    int pktSize = 200;
     UDPServer receiver(1235, 4000);
     unsigned char data[2560];
     for(int i = 0; i < sizeof(data); i++){
@@ -16,19 +17,18 @@ int main (int argc, char *argv[]) {
     unsigned char buffer[buffSize];
     receiver.MakeBlocking();
     auto ptr = (unsigned char*) &buffer;
-    while(ptr < (unsigned char *)&buffer + buffSize){
+    while(ptr < (unsigned char *)&buffer + buffSize - pktSize){
         int pktSize =  receiver.Recv(ptr, buffSize);
         std::cout << "packet received: " << pktSize << std::endl;
         ptr += pktSize;
     }
 
     int errCount = 0;
-    for(int i = 0; i < 2560; i++){
+    for(int i = 0; i < buffSize - pktSize; i++){
         if(data[i] != buffer[i]){
             errCount++;
         }
     }
     std::cout << "error count: " << errCount << std::endl;
-    std::cout << buffer << std::endl;
 
 }
