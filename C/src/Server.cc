@@ -7,7 +7,7 @@
 #pragma clang diagnostic push
 
 
-void forward(int buffSize, int serverPort, std::string addr, int forwardingPort, int sendPktSize){
+void forward(int buffSize, int serverPort, std::string addr, int forwardingPort, unsigned long sendPktSize){
     unsigned char rxBuffer[buffSize + sendPktSize];
     UDPServer server(serverPort, buffSize);
     UDPClient sender;
@@ -16,10 +16,8 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
     server.MakeBlocking();
     unsigned long total_rx_data = 0;
     unsigned long buffOffset = 0;
-    unsigned long sendPacketSize = sendPktSize;
 
     while(true) {
-        unsigned int packetCount;
         ssize_t packetSize = server.Recv(&rxBuffer[buffOffset], buffSize);
         if (packetSize < 0) {
             throw std::runtime_error("Receive failed");
@@ -27,24 +25,24 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
         //std::cout << "packet received: " << packetSize << std::endl;
         total_rx_data += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
-        packetCount = (int) total_rx_data / sendPacketSize;
-        buffOffset = total_rx_data % sendPacketSize;
+        unsigned int packetCount = (int) total_rx_data / sendPktSize;
+        buffOffset = total_rx_data % sendPktSize;
 
         for (unsigned int i = 0; i < packetCount; i++) {  // send packets
             try {
-                ssize_t s = sender.Send(addr, forwardingPort, bufferPtr, sendPacketSize);
+                sender.Send(addr, forwardingPort, bufferPtr, sendPktSize);
                 //std::cout << "packet sent: " << s << std::endl;
             }
             catch (std::runtime_error &e) {
                 //std::cout << "Sending error: " << e.what() << std::endl;
             }
-            bufferPtr += sendPacketSize;
+            bufferPtr += sendPktSize;
         }
 
         if (packetCount != 0) {
             memcpy(&rxBuffer, bufferPtr, buffOffset);  //move buffer to front
         }
-        total_rx_data -= packetCount * sendPacketSize;
+        total_rx_data -= packetCount * sendPktSize;
     }
 }
 
