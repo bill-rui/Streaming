@@ -21,14 +21,16 @@ void forward(int buffSize, int serverPort, std::string addr, int forwardingPort,
     unsigned long buffOffset = 0;
     unsigned long sendPacketSize = sendPktSize;
     int sendPktCount = 0;
+    int rcvPktCount = 0;
 
     while(true) {
         unsigned int packetCount;
         ssize_t packetSize = server.Recv(&rxBuffer[buffOffset], buffSize);
+        rcvPktCount++;
         if (packetSize < 0) {
             throw std::runtime_error("Receive failed");
         }
-        std::cout << "packet received: " << packetSize << std::endl;
+        std::cout << "packet received: " << packetSize << ", " << rcvPktCount << std::endl;
         total_rx_data += packetSize;
         auto *bufferPtr = (unsigned char *) &rxBuffer;
         packetCount = (int) total_rx_data / sendPacketSize;
