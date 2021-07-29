@@ -7,7 +7,7 @@
 #define SEND_PACKET_SIZE 256
 
 int main (int argc, char *argv[]) {
-    int buffSize = 2560;
+    int buffSize = 10000;
     int pktSize = 300;
     UDPServer receiver(1235, 4000);
     unsigned char data[buffSize];
