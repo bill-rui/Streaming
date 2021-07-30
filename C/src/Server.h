@@ -5,8 +5,9 @@
 #ifndef UDP_SERVER_SERVER_H
 #define UDP_SERVER_SERVER_H
 #include <iostream>
-void forward(int buffSize, int serverPort, std::string addr, int forwardingPort, unsigned long sendPktSize);
-void sendData(std::string addr, int port, const unsigned char* buffer, ssize_t len);
-void receiveData(int port, unsigned char *buffer, ssize_t len);
+void Forward(int kBuffSize, int kMaxRxSize, int kServerPort, std::string kAddr,
+             int kForwardingPort, unsigned long kSendPktSize);
+void SendData(std::string addr, int port, const unsigned char* buffer, ssize_t len);
+void ReceiveData(int port, unsigned char *buffer, ssize_t len);
 
 #endif //UDP_SERVER_SERVER_H

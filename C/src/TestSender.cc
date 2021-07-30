@@ -17,7 +17,7 @@ int main (int argc, char *argv[]) {
         data[i] = 'a' + i % 26;
     }
     for(long i = (long) &data; i < (long) &data + data_count; i += pktSize){
-        sendData("127.0.0.1", 1350, (unsigned char*) i, pktSize);
+        SendData("127.0.0.1", 1350, (unsigned char *) i, pktSize);
         sendCount++;
         std::cout << "packet sent: " << pktSize << ", " << sendCount << std::endl;
     }

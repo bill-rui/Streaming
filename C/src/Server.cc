@@ -1,64 +1,66 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
 
-#include "udp_server.h"
-#include "udp_client.h"
-#include "signal_handler.h"
 #include "Server.h"
+#include "signal_handler.h"
+#include "udp_client.h"
+#include "udp_server.h"
 #include <iostream>
 #pragma clang diagnostic push
 
-
-void forward(int buffSize, int serverPort, std::string addr, int forwardingPort, unsigned long sendPktSize){
-    unsigned char rxBuffer[buffSize + sendPktSize];
-    UDPServer server(serverPort, buffSize);
+void Forward(const int kBuffSize, const int kMaxRxSize, const int kServerPort, const std::string kAddr,
+             const int kForwardingPort, const unsigned long kSendPktSize){
+    unsigned char rx_buffer[kBuffSize + kSendPktSize];
+    UDPServer server(kServerPort, kBuffSize);
     UDPClient sender;
-    std::cout << "Forwarding to address: " << addr << ":" << forwardingPort << std::endl;
-    std::cout << "Packet size: " << sendPktSize << std::endl;
+    std::cout << "Forwarding to address: " << kAddr << ":" << kForwardingPort << std::endl;
+    std::cout << "Packet size: " << kSendPktSize << std::endl;
     server.MakeBlocking(1);
     unsigned long total_rx_data = 0;
-    unsigned long buffOffset = 0;
+    unsigned long leftover_data = 0;
     SignalHandler signal_handler;
     signal_handler.SetupSignalHandlers();
+    auto *send_ptr = reinterpret_cast<uint8_t *>(&rx_buffer);
+    auto *rcv_ptr = reinterpret_cast<uint8_t *>(&rx_buffer);
 
     while(!signal_handler.GotExitSignal()) {
-        ssize_t packetSize = server.Recv(&rxBuffer[buffOffset], buffSize);
-        if (packetSize < 0) {
+        ssize_t packet_size = server.Recv(rcv_ptr, kBuffSize);
+        if (packet_size < 0) {
             throw std::runtime_error("Receive failed");
         }
-        std::cout << "packet received: " << packetSize << std::endl;
-        total_rx_data += packetSize;
-        auto *bufferPtr = reinterpret_cast<const unsigned char *>(&rxBuffer);
-        unsigned int packetCount = static_cast<int>(total_rx_data / sendPktSize);
-        buffOffset = total_rx_data % sendPktSize;
+        std::cout << "packet received: " << packet_size << std::endl;
+        total_rx_data += packet_size;
+        unsigned int packet_count = static_cast<int>(total_rx_data / kSendPktSize);
+        leftover_data = total_rx_data % kSendPktSize;
 
-        for (unsigned int i = 0; i < packetCount; i++) {  // send packets
+        for (unsigned int i = 0; i < packet_count; i++) {  // send packets
             try {
-                sender.Send(addr, forwardingPort, bufferPtr, sendPktSize);
+                sender.Send(kAddr, kForwardingPort, send_ptr, kSendPktSize);
                 //std::cout << "packet sent: " << s << std::endl;
             }
             catch (std::runtime_error &e) {
                 //std::cout << "Sending error: " << e.what() << std::endl;
             }
-            bufferPtr += sendPktSize;
+            send_ptr += kSendPktSize;
         }
 
-        if (packetCount != 0) {
-            memcpy(&rxBuffer, bufferPtr, buffOffset);  //move buffer to front
+        if (packet_count != 0 &&  // move data to front if possible overflow
+            send_ptr + leftover_data + kMaxRxSize < reinterpret_cast<const uint8_t *>(&rx_buffer + kBuffSize)) {
+            memcpy(&rx_buffer, send_ptr, leftover_data);  //move buffer to front
+            send_ptr = reinterpret_cast<uint8_t *>(&rx_buffer);
         }
-        total_rx_data -= packetCount * sendPktSize;
-        std::cout << signal_handler.GotExitSignal() << std::endl;
+        rcv_ptr = send_ptr + leftover_data;
+        total_rx_data -= packet_count * kSendPktSize;
     }
-    std::cout << "No packet received" << std::endl;
 
 }
 
-void sendData(std::string addr, int port, const unsigned char* buffer, ssize_t len){
+void SendData(std::string addr, int port, const unsigned char* buffer, ssize_t len){
     UDPClient sender;
     sender.Send(addr, port, buffer, len);
 }
 
-void receiveData(int port, unsigned char *buffer, ssize_t len){
+void ReceiveData(int port, uint8_t *buffer, ssize_t len){
     UDPServer receiver(port, 4000);
     receiver.MakeBlocking();
     receiver.Recv(buffer, len);
