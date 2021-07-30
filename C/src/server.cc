@@ -1,7 +1,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
 
-#include "Server.h"
+#include "server.h"
 #include "signal_handler.h"
 #include "udp_client.h"
 #include "udp_server.h"

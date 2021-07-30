@@ -1,7 +1,7 @@
 project(UDP_Server)
-add_executable(send src/TestSender.cc src/signal_handler.cc src/Server.cc)
-add_executable(forward src/TestForwarder.cc src/signal_handler.cc src/Server.cc)
-add_executable(receive src/TestReceiver.cc src/signal_handler.cc src/Server.cc)
+add_executable(send src/test_sender.cc src/signal_handler.cc src/server.cc)
+add_executable(forward src/test_forwarder.cc src/signal_handler.cc src/server.cc)
+add_executable(receive src/test_receiver.cc src/signal_handler.cc src/server.cc)
 
 if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     message(STATUS "Using GNU compiler, compiler ID ${CMAKE_C_COMPILER_ID}")

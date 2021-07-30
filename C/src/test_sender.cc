@@ -1,7 +1,7 @@
 //
 // Created by Bill on 7/29/21.
 //
-#include "Server.h"
+#include "server.h"
 #define BUFF_SIZE 4000
 #define SERVER_PORT 1350
 #define FORWARDING_ADDR "10.238.200.107"
