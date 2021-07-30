@@ -1,7 +1,7 @@
 #include "Server.h"
 #define BUFF_SIZE 4000
 #define SERVER_PORT 1350
-#define FORWARDING_ADDR "10.238.200.107"
+#define FORWARDING_ADDR "127.0.0.1"
 #define FORWARDING_PORT 1235
 #define SEND_PACKET_SIZE 512
 #define MAX_RX_SIZE 512
