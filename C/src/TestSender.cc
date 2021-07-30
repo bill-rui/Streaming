@@ -9,6 +9,7 @@
 #define SEND_PACKET_SIZE 256
 
 int main (int argc, char *argv[]) {
+    std::cout <<"hello" << std::endl;
     int data_count = 10000;
     int pktSize = 512;
     int sendCount = 0;

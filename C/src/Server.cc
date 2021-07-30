@@ -25,27 +25,28 @@ void Forward(const int kBuffSize, const int kMaxRxSize, const int kServerPort, c
 
     while(!signal_handler.GotExitSignal()) {
         ssize_t packet_size = server.Recv(rcv_ptr, kBuffSize);
-        if (packet_size < 0) {
+        if (packet_size < 0 || packet_size > kMaxRxSize) {
             throw std::runtime_error("Receive failed");
         }
-        std::cout << "packet received: " << packet_size << std::endl;
+        //std::cout << "packet received: " << packet_size << std::endl;
         total_rx_data += packet_size;
         unsigned int packet_count = static_cast<int>(total_rx_data / kSendPktSize);
         leftover_data = total_rx_data % kSendPktSize;
 
         for (unsigned int i = 0; i < packet_count; i++) {  // send packets
             try {
-                sender.Send(kAddr, kForwardingPort, send_ptr, kSendPktSize);
+                ssize_t s = sender.Send(kAddr, kForwardingPort, send_ptr, kSendPktSize);
                 //std::cout << "packet sent: " << s << std::endl;
             }
             catch (std::runtime_error &e) {
-                //std::cout << "Sending error: " << e.what() << std::endl;
+                std::cout << "Sending error: " << e.what() << std::endl;
             }
             send_ptr += kSendPktSize;
         }
 
-        if (packet_count != 0 &&  // move data to front if possible overflow
-            send_ptr + leftover_data + kMaxRxSize < reinterpret_cast<const uint8_t *>(&rx_buffer + kBuffSize)) {
+        // move data to front if possible overflow
+        if (send_ptr + leftover_data + kMaxRxSize - reinterpret_cast<const uint8_t *>(&rx_buffer) > kBuffSize) {
+            //std::cout << "mem moved" << std::endl;
             memcpy(&rx_buffer, send_ptr, leftover_data);  //move buffer to front
             send_ptr = reinterpret_cast<uint8_t *>(&rx_buffer);
         }

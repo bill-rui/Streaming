@@ -8,7 +8,7 @@
 
 int main (int argc, char *argv[]) {
     int buffSize = 10000;
-    int pktSize = 300;
+    int pktSize = 512;
     UDPServer receiver(1235, 4000);
     unsigned char data[buffSize];
     for(int i = 0; i < sizeof(data); i++){
