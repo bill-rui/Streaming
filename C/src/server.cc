@@ -8,70 +8,116 @@
 #include <iostream>
 #pragma clang diagnostic push
 
-void Forward(const int kBuffSize, const int kMaxRxSize, const int kServerPort, const std::string kAddr,
-             const int kForwardingPort, const unsigned long kSendPktSize){
-    unsigned char rx_buffer[kBuffSize + kSendPktSize];
-    UDPServer server(kServerPort, kBuffSize); UDPClient sender; SignalHandler signal_handler;
-    unsigned long leftover_data;
-    unsigned long total_rx_data = 0;
-    bool print_progress = false; // remove
-    auto *send_ptr = reinterpret_cast<uint8_t *>(&rx_buffer);
-    auto *rcv_ptr = send_ptr;
 
-    server.MakeBlocking(1);
-    signal_handler.SetupSignalHandlers();
+StreamReceiver::StreamReceiver(const int kBuffSize, const int kMaxRxSize,
+                               const int kServerPort, const std::string kAddr,
+                               const int kForwardingPort,
+                               const unsigned long kSendPktSize)
+    :server(kServerPort, kBuffSize){
+  this->rx_buffer = new unsigned char[kBuffSize + kMaxRxSize];
+  this->kAddr = kAddr;
+  this->kMaxRxSize = kMaxRxSize;
+  this->kForwardingPort = kForwardingPort;
+  this->kBuffSize = kBuffSize;
+  this->kSendPktSize = kSendPktSize;
+  this->send_ptr = rx_buffer;
+  this->rcv_ptr = send_ptr;
+  this->total_rx_data = 0;
+  this->print_progress = true;  // TODO remove
+  server.MakeBlocking(1);
+}
 
-    std::cout << "Forwarding to address: " << kAddr << ":" << kForwardingPort << "\n";
-    std::cout << "Sending packet size: " << kSendPktSize << " bytes" << std::endl;
+StreamReceiver::StreamReceiver(
+    int kBuffSize, int kMaxRxSize, int kServerPort
+    ):server(kServerPort, kBuffSize){
+  this->rx_buffer = new unsigned char[kBuffSize + kMaxRxSize];
+  this->kAddr = "";
+  this->kMaxRxSize = kMaxRxSize;
+  this->kBuffSize = kBuffSize;
+  this->send_ptr = rx_buffer;
+  this->rcv_ptr = send_ptr;
+  this->total_rx_data = 0;
+  this->print_progress = true;  // TODO remove
+  server.MakeBlocking(1);
+}
 
-    while (!SignalHandler::GotExitSignal()) {
-        ssize_t packet_size = server.Recv(rcv_ptr, kBuffSize);
-        if (packet_size < 0) {
-            throw std::runtime_error("Receive failed");
-        }
-        else if (packet_size > kMaxRxSize){
-            throw std::runtime_error("Received packet larger than max receive size, check input");
-        }
-        if (print_progress) // remove
-            std::cout << "packet received: " << packet_size << std::endl;
-        total_rx_data += packet_size;
-        unsigned int packet_count = static_cast<int>(total_rx_data / kSendPktSize);
-        leftover_data = total_rx_data % kSendPktSize;
+/**
+ *
+ */
+void StreamReceiver::Forward(){
+  signal_handler.SetupSignalHandlers();
 
-        for (unsigned int i = 0; i < packet_count; i++) {  // send packets
-            try {
-                ssize_t s = sender.Send(kAddr, kForwardingPort, send_ptr, kSendPktSize);
-                if (print_progress) // remove
-                    std::cout << "packet sent: " << s << std::endl;
-            }
-            catch (std::runtime_error &e) {
-                std::cout << "Sending error: " << e.what() << std::endl;
-            }
-            send_ptr += kSendPktSize;
-        }
+  std::cout << "Forwarding to address: " << kAddr << ":" << kForwardingPort
+            << "\n";
+  std::cout << "Sending packet size: " << kSendPktSize << " bytes" << std::endl;
 
-        // move data to front if possible overflow
-        if (send_ptr + leftover_data + kMaxRxSize - reinterpret_cast<const uint8_t *>(&rx_buffer) > kBuffSize) {
-            if (print_progress)  // remove
-                std::cout << "data moved to front" << std::endl;
-            memcpy(&rx_buffer, send_ptr, leftover_data);  //move buffer to front
-            send_ptr = reinterpret_cast<uint8_t *>(&rx_buffer);
-        }
+  while (!SignalHandler::GotExitSignal()) {
+    Receive();
+    while (Send() >= 0);
+  }
+}
 
-        rcv_ptr = send_ptr + leftover_data;
-        total_rx_data -= packet_count * kSendPktSize;
+/**
+ * Receive packet to buffer
+ * @return Size of packet received
+ */
+ssize_t StreamReceiver::Receive() {
+    if (rcv_ptr + kMaxRxSize - reinterpret_cast<const uint8_t *>(rx_buffer) >
+      kBuffSize){
+        memcpy(rx_buffer, send_ptr, total_rx_data);
+        rcv_ptr = reinterpret_cast<uint8_t *>(rx_buffer) + total_rx_data;
+        send_ptr = reinterpret_cast<uint8_t *>(rx_buffer);
     }
+
+    ssize_t received = server.Recv(rcv_ptr, kBuffSize);
+    if (print_progress){ // TODO remove
+      std::cout << "packet received: " << received << std::endl;
+    }
+    if (received < 0){
+        throw std::runtime_error("Receive error");
+    }
+    else if (received > kMaxRxSize){
+        throw std::runtime_error("Received packet larger than max receive size, "
+          "check input");
+    }
+    total_rx_data += received;
+    rcv_ptr += received;
+    return received;
 }
 
-void SendData(std::string addr, int port, const unsigned char* buffer, ssize_t len){
-    UDPClient sender;
-    sender.Send(addr, port, buffer, len);
+/**
+ * Write given bytes from buffer to the destination
+ * @param dest pointer to destination
+ * @param bytes number of bytes to write
+ * @return number of bytes written, -1 if there isn't enough data in buffer
+ */
+ssize_t StreamReceiver::WriteTo(uint8_t *dest, ssize_t bytes){
+    if (bytes > total_rx_data){ return -1; }
+    memcpy(dest, send_ptr, bytes);
+    total_rx_data -= bytes;
+    send_ptr += bytes;
 }
 
-void ReceiveData(int port, uint8_t *buffer, ssize_t len){
-    UDPServer receiver(port, 4000);
-    receiver.MakeBlocking();
-    receiver.Recv(buffer, len);
+/**
+ * Send a packet
+ * @return size of packet sent, -1 if there isn't enough data
+ */
+ssize_t StreamReceiver::Send(){
+  ssize_t sent;
+  if (kSendPktSize > total_rx_data){ return -1; }
+
+  try {
+    sent = sender.Send(kAddr, kForwardingPort, send_ptr, kSendPktSize);
+    if (print_progress) // TODO remove
+      std::cout << "packet sent: " << sent << std::endl;
+  }
+  catch (std::runtime_error &e) {
+    std::cout << "Sending error: " << e.what() << std::endl;
+  }
+
+  send_ptr += sent;
+  total_rx_data -= sent;
+  return sent;
 }
 
 
